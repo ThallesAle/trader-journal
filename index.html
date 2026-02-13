@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trader Journal PRO</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: white;
+}
+
+/* LAYOUT */
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 320px;
+  background: #111827;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.main {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+header {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 8px;
+  background: #2563eb;
+  color: white;
+  width: 100%;
+}
+
+input {
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+  margin-top: 5px;
+  width: 95%;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #334155;
+  border-radius: 5px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: #22c55e;
+  transition: width 0.3s ease;
+}
+
+.controls {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.weekday {
+  font-weight: bold;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.day {
+  background: #1e293b;
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 70px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.day:hover { transform: scale(1.05); }
+
+.gain { background: #16a34a !important; }
+.loss { background: #dc2626 !important; }
+
+canvas {
+  max-width: 900px;
+  margin: 30px auto;
+  display: block;
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+  <!-- 🔥 SIDEBAR ESQUERDA -->
+  <div class="sidebar">
+
+    <header>📊 Trader Journal PRO</header>
+
+    <div class="card">
+      💵 Banca Inicial<br>
+      <input type="number" id="initialBalanceInput">
+      <button onclick="setInitialBalance()">Salvar</button>
+    </div>
+
+    <div class="card">
+      🏦 Banca Atual<br>
+      R$ <strong><span id="currentBalance">0</span></strong>
+    </div>
+
+    <div class="card">
+      💰 Depositar<br>
+      <input type="number" id="depositInput">
+      <button onclick="deposit()">Adicionar</button>
+    </div>
+
+    <div class="card">
+      💸 Sacar<br>
+      <input type="number" id="withdrawInput">
+      <button onclick="withdraw()">Sacar</button>
+    </div>
+
+    <div class="card">
+      🧾 Comissão Corretora<br>
+      <input type="number" id="commissionInput">
+      <button onclick="subtractCommission()">Descontar</button>
+    </div>
+
+    <div class="card">
+      🎯 Meta Mensal<br>
+      <input type="number" id="goalInput">
+      <button onclick="setMonthlyGoal()">Salvar</button>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="goalBar"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      📈 Crescimento<br>
+      <strong><span id="growthPercent">0%</span></strong>
+    </div>
+
+    <div class="card">
+      🎯 Meta Atingida<br>
+      <strong><span id="goalPercent">0%</span></strong>
+    </div>
+
+  </div>
+
+  <!-- 🔥 CONTEÚDO PRINCIPAL -->
+  <div class="main">
+
+    <div class="controls">
+      <button onclick="changeMonth(-1)">⬅</button>
+      <span id="monthYear"></span>
+      <button onclick="changeMonth(1)">➡</button>
+    </div>
+
+    <div class="calendar" id="calendar"></div>
+
+    <div class="controls" style="margin-top:20px;">
+      <div>✅ Gains: <span id="gains">0</span></div>
+      <div>❌ Losses: <span id="losses">0</span></div>
+      <div>💰 Saldo Mês: R$ <span id="saldo">0</span></div>
+      <div>📊 Winrate: <span id="winrate">0%</span></div>
+    </div>
+
+    <canvas id="chart"></canvas>
+
+  </div>
+
+</div>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
+<script src="script.js"></script>
+
+</body>
+</html>
