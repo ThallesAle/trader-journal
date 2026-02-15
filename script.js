@@ -195,6 +195,39 @@ function updateStats() {
 }
 
 /* =========================
+   GERENCIAMENTO DE RISCO
+========================= */
+
+function calculateRisk() {
+
+  const riskPercent = Number(document.getElementById("riskPercentInput").value);
+
+  if (isNaN(riskPercent) || riskPercent <= 0) {
+    return alert("Percentual de risco inválido");
+  }
+
+  // Calcular saldo do mês atual
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  let saldoMes = 0;
+
+  Object.keys(tradeData).forEach(key => {
+    if (key.startsWith(`${year}-${month}`)) {
+      saldoMes += tradeData[key];
+    }
+  });
+
+  const bancaAtual = initialBalance + saldoMes;
+
+  const riscoPorTrade = (bancaAtual * riskPercent) / 100;
+
+  document.getElementById("riskResult").innerText =
+    "R$ " + riscoPorTrade.toFixed(2);
+}
+
+
+/* =========================
    GRÁFICO
 ========================= */
 

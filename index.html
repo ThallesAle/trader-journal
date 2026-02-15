@@ -12,120 +12,214 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+:root {
+  --bg: #0f172a;
+  --sidebar: #111827;
+  --card: #1e293b;
+  --primary: #3b82f6;
+  --success: #22c55e;
+  --danger: #ef4444;
+  --text-muted: #94a3b8;
+}
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #0f172a;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0f172a, #0b1220);
   color: white;
 }
 
 /* LAYOUT */
 .layout {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
 }
 
+/* SIDEBAR */
 .sidebar {
   width: 320px;
-  background: #111827;
-  padding: 20px;
+  background: var(--sidebar);
+  padding: 25px;
   overflow-y: auto;
-}
-
-.main {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.4);
 }
 
 header {
   text-align: center;
   font-size: 22px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  letter-spacing: 1px;
 }
 
+/* MAIN */
+.main {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+/* CARDS */
 .card {
-  background: #1e293b;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 15px;
+  background: var(--card);
+  padding: 18px;
+  border-radius: 14px;
+  margin-bottom: 18px;
   text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  transition: 0.3s ease;
 }
 
-button {
-  padding: 6px 12px;
+.card:hover {
+  transform: translateY(-3px);
+}
+
+/* INPUTS */
+input {
+  padding: 8px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
-  cursor: pointer;
   margin-top: 8px;
-  background: #2563eb;
+  width: 100%;
+  background: #0f172a;
+  color: white;
+  outline: none;
+  border: 1px solid #334155;
+}
+
+input:focus {
+  border-color: var(--primary);
+}
+
+/* BUTTON */
+button {
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+  background: var(--primary);
   color: white;
   width: 100%;
+  font-weight: bold;
+  transition: 0.3s ease;
 }
 
-input {
-  padding: 6px;
-  border-radius: 6px;
-  border: none;
-  margin-top: 5px;
-  width: 95%;
+button:hover {
+  background: #2563eb;
+  transform: scale(1.03);
 }
 
+/* PROGRESS BAR */
 .progress-bar {
   height: 10px;
   background: #334155;
   border-radius: 5px;
-  margin-top: 10px;
+  margin-top: 12px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
   width: 0%;
-  background: #22c55e;
-  transition: width 0.3s ease;
+  background: var(--success);
+  transition: width 0.4s ease;
 }
 
+/* CONTROLS */
 .controls {
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
+.controls button {
+  width: 40px;
+  display: inline-block;
+}
+
+/* CALENDAR */
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 8px;
-  max-width: 900px;
+  gap: 10px;
+  max-width: 1000px;
   margin: auto;
 }
 
 .weekday {
   font-weight: bold;
   text-align: center;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .day {
-  background: #1e293b;
-  border-radius: 10px;
-  padding: 10px;
-  min-height: 70px;
+  background: var(--card);
+  border-radius: 14px;
+  padding: 12px;
+  min-height: 80px;
   cursor: pointer;
   transition: 0.2s;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
-.day:hover { transform: scale(1.05); }
+.day:hover {
+  transform: scale(1.05);
+}
 
-.gain { background: #16a34a !important; }
-.loss { background: #dc2626 !important; }
+.gain {
+  background: var(--success) !important;
+}
+
+.loss {
+  background: var(--danger) !important;
+}
+
+/* STATS GRID */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  max-width: 900px;
+  margin: 20px auto;
+}
+
+.stat-box {
+  background: var(--card);
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+.stat-box span {
+  display: block;
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 5px;
+}
 
 canvas {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 30px auto;
   display: block;
 }
+
+/* RESPONSIVO */
+@media(max-width: 1000px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 </style>
+
 </head>
 
 <body>
@@ -144,9 +238,16 @@ canvas {
     </div>
 
     <div class="card">
-      🏦 Banca Atual<br>
-      R$ <strong><span id="currentBalance">0</span></strong>
+      Gerenciamento de Risco<br>
+      <input type="number" id="riskPercentInput" placeholder="% de risco" />
+
+      <button onclick="calculateRisk()">
+      Calcular Risco
+      </button>
     </div>
+
+<p>Valor máximo por trade: <strong id="riskResult">R$ 0.00</strong></p>
+
 
     <div class="card">
       💰 Depositar<br>
@@ -176,6 +277,18 @@ canvas {
       </div>
     </div>
 
+
+
+  </div>
+
+  <!-- 🔥 CONTEÚDO PRINCIPAL -->
+  <div class="main">
+
+    <div class="card">
+      🏦 Banca Atual<br>
+      R$ <strong><span id="currentBalance">0</span></strong>
+    </div>
+
     <div class="card">
       📈 Crescimento<br>
       <strong><span id="growthPercent">0%</span></strong>
@@ -185,11 +298,6 @@ canvas {
       🎯 Meta Atingida<br>
       <strong><span id="goalPercent">0%</span></strong>
     </div>
-
-  </div>
-
-  <!-- 🔥 CONTEÚDO PRINCIPAL -->
-  <div class="main">
 
     <div class="controls">
       <button onclick="changeMonth(-1)">⬅</button>
@@ -202,7 +310,7 @@ canvas {
     <div class="controls" style="margin-top:20px;">
       <div>✅ Gains: <span id="gains">0</span></div>
       <div>❌ Losses: <span id="losses">0</span></div>
-      <div>💰 Saldo Mês: R$ <span id="saldo">0</span></div>
+      <div>💰 Lucro do Mês: R$ <span id="saldo">0</span></div>
       <div>📊 Winrate: <span id="winrate">0%</span></div>
     </div>
 
