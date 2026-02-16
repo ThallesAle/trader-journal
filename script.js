@@ -65,13 +65,26 @@ function subtractCommission() {
   const value = Number(document.getElementById("commissionInput").value);
   if (isNaN(value) || value <= 0) return alert("Valor inválido");
 
-  initialBalance -= value;
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const today = new Date().getDate();
+
+  const key = `${year}-${month}-${today}`;
+
+  // Se já existir valor no dia, soma junto
+  if (tradeData[key]) {
+    tradeData[key] -= value;
+  } else {
+    tradeData[key] = -value;
+  }
+
   document.getElementById("commissionInput").value = "";
 
   saveAll();
   updateStats();
   updateChart();
 }
+
 
 /* =========================
    META
