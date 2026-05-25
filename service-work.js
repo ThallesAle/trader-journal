@@ -1,39 +1,43 @@
-const CACHE_NAME = "trader-journal-v2"; // MUDE A VERSÃO SEMPRE QUE ALTERAR ALGO
+const CACHE_NAME = "trader-journal-v2";
 
 const urlsToCache = [
-  "./",
-  "./index.html",
-  "./style.css",
-  "./script.js",
-  "./manifest.json",
-  "./icon.png"
+  "/",
+  "/index.html",
+  "/style.css",
+  "/script.js"
 ];
 
-self.addEventListener("install", (event) => {
-  self.skipWaiting(); // força atualização
+self.addEventListener("install", event => {
+
   event.waitUntil(
+
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+      .then(cache => cache.addAll(urlsToCache))
+
   );
+
 });
 
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", event => {
+
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache); // remove cache antigo
-          }
-        })
-      );
-    })
-  );
-  self.clients.claim();
-});
 
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    caches.keys().then(keys => {
+
+      return Promise.all(
+
+        keys.map(key => {
+
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+
+        })
+
+      );
+
+    })
+
   );
+
 });
