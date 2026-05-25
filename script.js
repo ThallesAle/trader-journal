@@ -282,7 +282,7 @@ function renderCalendar() {
     div.innerHTML = `
       <strong>${day}</strong><br>
       ${value
-        ? "R$ " + value.toFixed(2)
+        ? "$ " + value.toFixed(2)
         : ""}
     `;
 
@@ -522,7 +522,7 @@ function calculateRisk() {
   document.getElementById(
     "riskResult"
   ).innerText =
-    "R$ "
+    "$ "
     + riscoPorTrade.toFixed(2);
 
 }
