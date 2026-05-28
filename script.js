@@ -114,41 +114,7 @@ function openTradeModal(key, day, value) {
 
 }
 
-function closeTradeModal() {
 
-  document.getElementById(
-    "tradeModal"
-  ).style.display = "none";
-
-}
-
-function saveTrade() {
-
-  const input = Number(
-    document.getElementById(
-      "tradeValueInput"
-    ).value
-  );
-
-  if (isNaN(input)) {
-
-    return alert("Valor inválido");
-
-  }
-
-  tradeData[selectedTradeKey] = input;
-
-  saveAll();
-
-  renderCalendar();
-
-  updateStats();
-
-  updateChart();
-
-  closeTradeModal();
-
-}
 
 /* =========================
    BANCA
@@ -475,10 +441,10 @@ div.onclick = () => {
 
 function updateStats() {
 
-  const year =
+  const currentYear =
     currentDate.getFullYear();
 
-  const month =
+  const currentMonth =
     currentDate.getMonth();
 
   let gains = 0;
@@ -487,17 +453,32 @@ function updateStats() {
 
   let saldoMes = 0;
 
+  let saldoTotal = 0;
+
   Object.keys(tradeData)
     .forEach(key => {
 
-      if (
-        key.startsWith(
-          `${year}-${month}`
-        )
-      ) {
+      const parts = key.split("-");
 
-        const value =
-          tradeData[key];
+      const year =
+        Number(parts[0]);
+
+      const month =
+        Number(parts[1]);
+
+      const value =
+        tradeData[key];
+
+      /* SALDO TOTAL ACUMULADO */
+
+      saldoTotal += value;
+
+      /* APENAS MÊS ATUAL */
+
+      if (
+        year === currentYear &&
+        month === currentMonth
+      ) {
 
         saldoMes += value;
 
@@ -509,26 +490,32 @@ function updateStats() {
 
     });
 
-  const total =
+  const totalTrades =
     gains + losses;
 
   const winrate =
-    total > 0
+    totalTrades > 0
       ? (
-          (gains / total) * 100
+          (gains / totalTrades) * 100
         ).toFixed(1)
       : 0;
 
+  /* BANCA REAL ACUMULADA */
+
   const bancaAtual =
-    initialBalance + saldoMes;
+    initialBalance + saldoTotal;
+
+  /* CRESCIMENTO TOTAL */
 
   const crescimento =
     initialBalance > 0
       ? (
-          (saldoMes / initialBalance)
+          (saldoTotal / initialBalance)
           * 100
         ).toFixed(2)
       : 0;
+
+  /* META DO MÊS */
 
   const metaPercent =
     monthlyGoal > 0
@@ -610,53 +597,82 @@ function updateStats() {
 
 function updateChart() {
 
-  const year =
-    currentDate.getFullYear();
-
-  const month =
-    currentDate.getMonth();
-
-  const daysInMonth =
-    new Date(
-      year,
-      month + 1,
-      0
-    ).getDate();
-
-  let saldo = 0;
-
   let labels = [];
 
   let data = [];
 
-  for (
-    let day = 1;
-    day <= daysInMonth;
-    day++
-  ) {
+  let saldoAtual =
+    initialBalance;
 
-    const key =
-      `${year}-${month}-${day}`;
+  /* =========================
+     PEGAR TODOS OS TRADES
+  ========================= */
 
-    if (tradeData[key]) {
+  const sortedKeys =
+    Object.keys(tradeData)
+      .sort((a, b) => {
 
-      saldo += tradeData[key];
+        const dateA =
+          new Date(a);
 
-    }
+        const dateB =
+          new Date(b);
 
-    labels.push(day);
+        return dateA - dateB;
 
-    data.push(
-      initialBalance + saldo
+      });
+
+  /* =========================
+     GERAR LINHA CONTÍNUA
+  ========================= */
+
+  sortedKeys.forEach(key => {
+
+    saldoAtual += tradeData[key];
+
+    const parts =
+      key.split("-");
+
+    const year =
+      parts[0];
+
+    const month =
+      Number(parts[1]) + 1;
+
+    const day =
+      parts[2];
+
+    labels.push(
+      `${day}/${month}`
     );
 
+    data.push(saldoAtual);
+
+  });
+
+  /* CASO NÃO TENHA TRADES */
+
+  if (data.length === 0) {
+
+    labels = ["Início"];
+
+    data = [initialBalance];
+
   }
+
+  /* =========================
+     DESTRUIR CHART ANTIGO
+  ========================= */
 
   if (chart) {
 
     chart.destroy();
 
   }
+
+  /* =========================
+     NOVO CHART
+  ========================= */
 
   chart = new Chart(
 
