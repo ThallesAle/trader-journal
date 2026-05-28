@@ -11,6 +11,8 @@ let monthlyGoal =
 
 let chart;
 
+let selectedTradeKey = null;
+
 const calendar =
   document.getElementById("calendar");
 
@@ -53,6 +55,102 @@ function saveAll() {
 }
 
 /* =========================
+   DARK / LIGHT MODE
+========================= */
+
+function toggleTheme() {
+
+  document.body.classList.toggle(
+    "light-mode"
+  );
+
+  const isLight =
+    document.body.classList.contains(
+      "light-mode"
+    );
+
+  localStorage.setItem(
+    "theme",
+    isLight ? "light" : "dark"
+  );
+
+}
+
+function loadTheme() {
+
+  const savedTheme =
+    localStorage.getItem("theme");
+
+  if (savedTheme === "light") {
+
+    document.body.classList.add(
+      "light-mode"
+    );
+
+  }
+
+}
+
+/* =========================
+   MODAL
+========================= */
+
+function openTradeModal(key, day, value) {
+
+  selectedTradeKey = key;
+
+  document.getElementById(
+    "tradeModal"
+  ).style.display = "flex";
+
+  document.getElementById(
+    "selectedDateText"
+  ).innerText =
+    `Operação do dia ${day}`;
+
+  document.getElementById(
+    "tradeValueInput"
+  ).value = value || "";
+
+}
+
+function closeTradeModal() {
+
+  document.getElementById(
+    "tradeModal"
+  ).style.display = "none";
+
+}
+
+function saveTrade() {
+
+  const input = Number(
+    document.getElementById(
+      "tradeValueInput"
+    ).value
+  );
+
+  if (isNaN(input)) {
+
+    return alert("Valor inválido");
+
+  }
+
+  tradeData[selectedTradeKey] = input;
+
+  saveAll();
+
+  renderCalendar();
+
+  updateStats();
+
+  updateChart();
+
+  closeTradeModal();
+
+}
+
+/* =========================
    BANCA
 ========================= */
 
@@ -65,7 +163,9 @@ function setInitialBalance() {
   );
 
   if (isNaN(value) || value < 0) {
+
     return alert("Valor inválido");
+
   }
 
   initialBalance = value;
@@ -87,7 +187,9 @@ function deposit() {
   );
 
   if (isNaN(value) || value <= 0) {
+
     return alert("Valor inválido");
+
   }
 
   initialBalance += value;
@@ -113,7 +215,9 @@ function withdraw() {
   );
 
   if (isNaN(value) || value <= 0) {
+
     return alert("Valor inválido");
+
   }
 
   initialBalance -= value;
@@ -125,58 +229,6 @@ function withdraw() {
   saveAll();
 
   updateStats();
-
-  updateChart();
-
-}
-
-/* =========================
-   COMISSÃO
-========================= */
-
-function subtractCommission() {
-
-  const value = Number(
-    document.getElementById(
-      "commissionInput"
-    ).value
-  );
-
-  if (isNaN(value) || value <= 0) {
-    return alert("Valor inválido");
-  }
-
-  const year =
-    currentDate.getFullYear();
-
-  const month =
-    currentDate.getMonth();
-
-  const today =
-    new Date().getDate();
-
-  const key =
-    `${year}-${month}-${today}`;
-
-  if (tradeData[key]) {
-
-    tradeData[key] -= value;
-
-  } else {
-
-    tradeData[key] = -value;
-
-  }
-
-  document.getElementById(
-    "commissionInput"
-  ).value = "";
-
-  saveAll();
-
-  updateStats();
-
-  renderCalendar();
 
   updateChart();
 
@@ -195,7 +247,9 @@ function setMonthlyGoal() {
   );
 
   if (isNaN(value) || value < 0) {
+
     return alert("Meta inválida");
+
   }
 
   monthlyGoal = value;
@@ -203,6 +257,66 @@ function setMonthlyGoal() {
   saveAll();
 
   updateStats();
+
+}
+
+/* =========================
+   RISCO
+========================= */
+
+function calculateRisk() {
+
+  const riskPercent = Number(
+    document.getElementById(
+      "riskPercentInput"
+    ).value
+  );
+
+  if (
+    isNaN(riskPercent)
+    || riskPercent <= 0
+  ) {
+
+    return alert(
+      "Percentual inválido"
+    );
+
+  }
+
+  const year =
+    currentDate.getFullYear();
+
+  const month =
+    currentDate.getMonth();
+
+  let saldoMes = 0;
+
+  Object.keys(tradeData)
+    .forEach(key => {
+
+      if (
+        key.startsWith(
+          `${year}-${month}`
+        )
+      ) {
+
+        saldoMes += tradeData[key];
+
+      }
+
+    });
+
+  const bancaAtual =
+    initialBalance + saldoMes;
+
+  const risco =
+    (bancaAtual * riskPercent)
+    / 100;
+
+  document.getElementById(
+    "riskResult"
+  ).innerText =
+    "R$ " + risco.toFixed(2);
 
 }
 
@@ -279,14 +393,11 @@ function renderCalendar() {
     const value =
       tradeData[key];
 
-    div.innerHTML = `
-      <strong>${day}</strong><br>
-      ${value
-        ? "$ " + value.toFixed(2)
-        : ""}
-    `;
+    let emoji = "";
 
     if (value > 0) {
+
+      emoji = "😄";
 
       div.classList.add("gain");
 
@@ -294,35 +405,61 @@ function renderCalendar() {
 
     if (value < 0) {
 
+      emoji = "😢";
+
       div.classList.add("loss");
 
     }
 
-    div.onclick = () => {
+    div.innerHTML = `
 
-      let input = prompt(
-        "Digite lucro (+) ou prejuízo (-):"
-      );
+      <strong>${day}</strong>
 
-      if (input === null) return;
+      <div class="day-profit">
+        ${
+          value !== undefined
+          ? "R$ " + value.toFixed(2)
+          : ""
+        }
+      </div>
 
-      let number = Number(input);
+      <div class="day-emoji">
+        ${emoji}
+      </div>
 
-      if (isNaN(number)) {
-        return alert("Valor inválido");
-      }
+    `;
 
-      tradeData[key] = number;
+div.onclick = () => {
 
-      saveAll();
+  const currentValue =
+    tradeData[key] || "";
 
-      renderCalendar();
+  const input = prompt(
+    `Digite o valor da operação do dia ${day}:`,
+    currentValue
+  );
 
-      updateStats();
+  if (input === null) return;
 
-      updateChart();
+  const number = Number(input);
 
-    };
+  if (isNaN(number)) {
+
+    return alert("Valor inválido");
+
+  }
+
+  tradeData[key] = number;
+
+  saveAll();
+
+  renderCalendar();
+
+  updateStats();
+
+  updateChart();
+
+};
 
     calendar.appendChild(div);
 
@@ -359,7 +496,8 @@ function updateStats() {
         )
       ) {
 
-        let value = tradeData[key];
+        const value =
+          tradeData[key];
 
         saldoMes += value;
 
@@ -371,10 +509,10 @@ function updateStats() {
 
     });
 
-  let total =
+  const total =
     gains + losses;
 
-  let winrate =
+  const winrate =
     total > 0
       ? (
           (gains / total) * 100
@@ -438,92 +576,31 @@ function updateStats() {
   ).innerText =
     metaPercent.toFixed(1) + "%";
 
-const goalBar =
-  document.getElementById("goalBar");
-
-if (goalBar) {
-
-  goalBar.style.width =
-    Math.min(metaPercent, 100)
-    + "%";
-
-}
-
-/* NOVA BARRA KPI */
-
-const goalProgressBar =
-  document.getElementById(
-    "goalProgressBar"
-  );
-
-if (goalProgressBar) {
-
-  goalProgressBar.style.width =
-    Math.min(metaPercent, 100)
-    + "%";
-
-}
-
-}
-
-/* =========================
-   RISCO
-========================= */
-
-function calculateRisk() {
-
-  const riskPercent = Number(
+  const goalBar =
     document.getElementById(
-      "riskPercentInput"
-    ).value
-  );
-
-  if (
-    isNaN(riskPercent)
-    || riskPercent <= 0
-  ) {
-
-    return alert(
-      "Percentual de risco inválido"
+      "goalBar"
     );
+
+  if (goalBar) {
+
+    goalBar.style.width =
+      Math.min(metaPercent, 100)
+      + "%";
 
   }
 
-  const year =
-    currentDate.getFullYear();
+  const goalProgressBar =
+    document.getElementById(
+      "goalProgressBar"
+    );
 
-  const month =
-    currentDate.getMonth();
+  if (goalProgressBar) {
 
-  let saldoMes = 0;
+    goalProgressBar.style.width =
+      Math.min(metaPercent, 100)
+      + "%";
 
-  Object.keys(tradeData)
-    .forEach(key => {
-
-      if (
-        key.startsWith(
-          `${year}-${month}`
-        )
-      ) {
-
-        saldoMes += tradeData[key];
-
-      }
-
-    });
-
-  const bancaAtual =
-    initialBalance + saldoMes;
-
-  const riscoPorTrade =
-    (bancaAtual * riskPercent)
-    / 100;
-
-  document.getElementById(
-    "riskResult"
-  ).innerText =
-    "$ "
-    + riscoPorTrade.toFixed(2);
+  }
 
 }
 
@@ -605,10 +682,10 @@ function updateChart() {
           borderWidth: 3,
 
           borderColor:
-            "#3b82f6",
+            "#22c55e",
 
           backgroundColor:
-            "rgba(59,130,246,0.15)",
+            "rgba(34,197,94,0.15)",
 
           fill: true,
 
@@ -619,7 +696,7 @@ function updateChart() {
           pointHoverRadius: 7,
 
           pointBackgroundColor:
-            "#3b82f6"
+            "#22c55e"
 
         }]
 
@@ -710,6 +787,8 @@ document.getElementById(
 document.getElementById(
   "goalInput"
 ).value = monthlyGoal;
+
+loadTheme();
 
 renderCalendar();
 

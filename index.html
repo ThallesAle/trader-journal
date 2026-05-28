@@ -26,38 +26,49 @@
   <div class="sidebar">
 
     <header>
-
       📊 Trader Journal PRO
-
     </header>
+
+    <!-- DARK MODE -->
+
+    <button
+            class="theme-toggle"
+            onclick="toggleTheme()"
+    >
+      🌙 Alternar Tema
+    </button>
+
+    <!-- BANCA -->
 
     <div class="card">
 
       💵 Banca Inicial<br>
 
-      <input type="number"
-             id="initialBalanceInput">
+      <input
+              type="number"
+              id="initialBalanceInput"
+      >
 
       <button onclick="setInitialBalance()">
-
         Salvar
-
       </button>
 
     </div>
+
+    <!-- RISCO -->
 
     <div class="card">
 
       Gerenciamento de Risco<br>
 
-      <input type="number"
-             id="riskPercentInput"
-             placeholder="% de risco">
+      <input
+              type="number"
+              id="riskPercentInput"
+              placeholder="% de risco"
+      >
 
       <button onclick="calculateRisk()">
-
         Calcular Risco
-
       </button>
 
       <p>
@@ -65,62 +76,68 @@
         Valor máximo por trade:
 
         <strong id="riskResult">
-
-          $ 0.00
-
+          R$ 0.00
         </strong>
 
       </p>
 
     </div>
 
+    <!-- DEPÓSITO -->
+
     <div class="card">
 
       💰 Depositar<br>
 
-      <input type="number"
-             id="depositInput">
+      <input
+              type="number"
+              id="depositInput"
+      >
 
       <button onclick="deposit()">
-
         Adicionar
-
       </button>
 
     </div>
+
+    <!-- SAQUE -->
 
     <div class="card">
 
       💸 Sacar<br>
 
-      <input type="number"
-             id="withdrawInput">
+      <input
+              type="number"
+              id="withdrawInput"
+      >
 
       <button onclick="withdraw()">
-
         Sacar
-
       </button>
 
     </div>
+
+    <!-- META -->
 
     <div class="card">
 
       🎯 Meta Mensal<br>
 
-      <input type="number"
-             id="goalInput">
+      <input
+              type="number"
+              id="goalInput"
+      >
 
       <button onclick="setMonthlyGoal()">
-
         Salvar
-
       </button>
 
       <div class="progress-bar">
 
-        <div class="progress-fill"
-             id="goalBar"></div>
+        <div
+                class="progress-fill"
+                id="goalBar"
+        ></div>
 
       </div>
 
@@ -132,66 +149,78 @@
 
   <div class="main">
 
+    <!-- TOPBAR -->
+
+    <div class="topbar">
+
+      <div>
+
+        <h1 class="app-title">
+          Trader Journal PRO
+        </h1>
+
+        <p class="app-subtitle">
+          Controle profissional da sua evolução financeira
+        </p>
+
+      </div>
+
+    </div>
+
     <!-- TOP STATS -->
 
     <div class="top-stats">
 
+      <!-- BANCA -->
+
       <div class="stat-card">
 
         <div class="stat-title">
-
           🏦 Banca Atual
-
         </div>
 
         <div class="stat-value">
 
-          $
+          R$
           <span id="currentBalance">
-
             0
-
           </span>
 
         </div>
 
       </div>
 
+      <!-- CRESCIMENTO -->
+
       <div class="stat-card">
 
         <div class="stat-title">
-
           📈 Crescimento
-
         </div>
 
         <div class="stat-value success-text">
 
           <span id="growthPercent">
-
             0%
-
           </span>
 
         </div>
 
       </div>
 
+      <!-- META -->
+
       <div class="stat-card">
 
         <div class="stat-title">
-
           🎯 Meta Atingida
-
         </div>
 
         <div class="stat-value primary-text">
 
-    <span id="goalPercent">
-
-      0%
-
-    </span>
+          <span id="goalPercent">
+            0%
+          </span>
 
         </div>
 
@@ -199,8 +228,8 @@
 
           <div
                   class="meta-progress-fill"
-                  id="goalProgressBar">
-          </div>
+                  id="goalProgressBar"
+          ></div>
 
         </div>
 
@@ -213,58 +242,47 @@
     <div class="controls">
 
       <button onclick="changeMonth(-1)">
-
         ⬅
-
       </button>
 
       <span id="monthYear"></span>
 
       <button onclick="changeMonth(1)">
-
         ➡
-
       </button>
 
     </div>
 
     <!-- CALENDÁRIO -->
 
-    <div class="calendar"
-         id="calendar"></div>
+    <div
+            class="calendar"
+            id="calendar"
+    ></div>
 
     <!-- STATS -->
 
-    <div class="controls"
-         style="margin-top:20px;">
+    <div class="controls stats-controls">
 
       <div>
-
         ✅ Gains:
         <span id="gains">0</span>
-
       </div>
 
       <div>
-
         ❌ Losses:
         <span id="losses">0</span>
-
       </div>
 
       <div>
-
         💰 Lucro do Mês:
-        $
+        R$
         <span id="saldo">0</span>
-
       </div>
 
       <div>
-
         📊 Winrate:
         <span id="winrate">0%</span>
-
       </div>
 
     </div>
@@ -276,15 +294,11 @@
       <div class="chart-header">
 
         <h2>
-
           📈 Evolução da Banca
-
         </h2>
 
         <span>
-
           Performance mensal
-
         </span>
 
       </div>
@@ -300,6 +314,17 @@
   </div>
 
 </div>
+
+<!-- MODAL OPERAÇÃO -->
+
+<div
+        class="trade-modal"
+        id="tradeModal"
+>
+
+</div>
+
+<!-- SERVICE WORKER -->
 
 <script>
 
